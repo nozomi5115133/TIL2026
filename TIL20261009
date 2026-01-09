@@ -1,0 +1,53 @@
+Taro AGC 本番環境用のアカウント
+
+今回の原因：「P.M」となっていたものが「M.P」になって名前が逆になっていた
+
+アプリ上の設定：①自動保存を「オフ」
+外部ユーザー：MSのアカウントを持っていない人→#extがつく→フィルタークエリが効かないので、IF分で表示条件選別
+②DataTable1の
+③質問書ギャラリの「氏名権限User」をEmailに変える
+
+本番環境：「C.E. Tax」のdefaultが
+
+If(
+    AdminUser = true,
+    SortByColumns(
+        Search(
+            '質問書　回答内容',
+            SearchTextInput.Text,
+            氏名,
+            タイトル
+        ),
+        "Year",
+        SortOrder.Descending,
+        "NameTxt",
+        SortOrder.Ascending
+    ),
+    SortByColumns(
+        Search(
+        Filter(
+            '質問書　回答内容',
+            If(
+                    !IsMatch('氏名（権限ユーザー）'.Email, User().Email),
+                    '氏名（権限ユーザー）'.DisplayName = User().FullName,
+                    '氏名（権限ユーザー）'.Email = User().Email
+                )
+        ),
+            SearchTextInput.Text,
+            氏名,
+            タイトル
+        ),
+        "Year",
+        SortOrder.Descending,
+        "NameTxt",
+        SortOrder.Ascending
+    )
+)
+//一般ユーザーはログインユーザーのメールアドレスと権限ユーザーのメールアドレスが一致するアイテムのみを表示する
+//外部ユーザーはUser（）.Emailと権限ユーザーのメールアドレスが一致しないことがあるため表示名が一致するアイテムのみを表示する
+//管理者は全員分を表示する
+//氏名のアルファベット順（昇順）、年度の降順で表示する
+//検索ボックスの文字列が部分一致するアイテムを表示する
+//データ件数が2000件以内なので委任の警告は影響なし
+
+
